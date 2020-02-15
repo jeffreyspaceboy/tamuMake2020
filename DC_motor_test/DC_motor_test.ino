@@ -1,11 +1,21 @@
 #include <AFMotor.h>
 
 AF_DCMotor motor(1);
+AF_DCMotor motor(1);
+
 
 void setup() {
   // put your setup code here, to run once:
   motor.setSpeed(100);
   motor.run(RELEASE);
+}
+
+void forward(){
+  motor.run(
+}
+
+void right(){
+  
 }
 
 void loop() {
