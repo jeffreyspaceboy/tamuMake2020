@@ -140,14 +140,14 @@ void turnAround(int t, int Speed){
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  /*
-  motorLF.run(FORWARD);
-  delay(1000);
-  motorLF.run(RELEASE);
-  
-  //motor.run(BACKWARD);
-  //motor.run(RELEASE);
-  delay(1000);
-  */
+  forward(1000,70);
+  backward(1000,70);
+  right(1000,70);
+  left(1000,70);
+  diagonalRightBack(1000,70);
+  diagonalLeftFront(1000,70);
+  diagonalLeftBack(1000,70);
+  diagonalRightFront(1000,70);
+  turnAround(1000,70);
+  turnaround(1000,70);
 }
