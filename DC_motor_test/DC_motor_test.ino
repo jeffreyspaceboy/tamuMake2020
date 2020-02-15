@@ -6,7 +6,6 @@ AF_DCMotor motorLB(2);
 AF_DCMotor motorRB(3);
 AF_DCMotor motorRF(4);
 
-int t = 1000;
 int motorSpeed = 100;
 void setup() {
   // put your setup code here, to run once:
@@ -20,10 +19,19 @@ void motorStop(){
   motorLB.run(RELEASE);
   motorRB.run(RELEASE);
 
-  delay(t);
+  delay(500);
 }
-void forward(){
-  
+
+void motorSpeed(int Speed){
+  motorLF.setSpeed(Speed);
+  motorRF.setSpeed(Speed);
+  motorLB.setSpeed(Speed);
+  motorRB.setSpeed(Speed);
+}
+
+void forward(int t, int Speed){
+
+  motorSpeed(Speed);
   motorLF.run(FORWARD);
   motorRF.run(FORWARD);
   motorLB.run(FORWARD);
@@ -33,7 +41,9 @@ void forward(){
   motorStop();
 }
 
-void right(){
+void right(int t, int Speed){
+
+  motorSpeed(Speed);
   motorLF.run(FORWARD);
   motorRF.run(BACKWARD);
   motorLB.run(BACKWARD);
@@ -44,7 +54,9 @@ void right(){
   motorStop();
 }
 
-void rf(){
+void diagonalRightFront(int t, int Speed){
+
+  motorSpeed(Speed);
   motorLF.run(FORWARD);
   motorRB.run(FORWARD);
 
@@ -54,7 +66,9 @@ void rf(){
   
 }
 
-void left(){
+void left(int t, int Speed){
+
+  motorSpeed(Speed);
   motorLF.run(BACKWARD);
   motorRF.run(FORWARD);
   motorLB.run(FORWARD);
@@ -65,7 +79,9 @@ void left(){
   motorStop();
 }
 
-void lf(){
+void diagonalLeftFront(int t, int Speed){
+
+  motorSpeed(Speed);
   motorRF.run(FORWARD);
   motorLB.run(FORWARD);
   
@@ -74,7 +90,9 @@ void lf(){
   motorStop();
 }
 
-void backward(){
+void backward(int t, int Speed){
+
+  motorSpeed(Speed);
   motorLF.run(BACKWARD);
   motorRF.run(BACKWARD);
   motorLB.run(BACKWARD);
@@ -85,7 +103,9 @@ void backward(){
   motorStop();
 }
 
-void lb(){
+void diagonalLeftBack(int t, int Speed){
+
+  motorSpeed(Speed);
   motorLF.run(BACKWARD);
   motorRB.run(BACKWARD);
   
@@ -94,7 +114,9 @@ void lb(){
   motorStop();
 }
 
-void rb(){
+void diagonalRightBack(int t, int Speed){
+
+  motorSpeed(Speed);
   motorRF.run(BACKWARD);
   motorLB.run(BACKWARD);
   
@@ -103,7 +125,9 @@ void rb(){
   motorStop();
 }
 
-void turn(){
+void turnAround(int t, int Speed){
+
+  motorSpeed(Speed);
   motorLF.run(FORWARD);
   motorRF.run(BACKWARD);
   motorLB.run(FORWARD);
