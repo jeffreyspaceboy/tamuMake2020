@@ -6,11 +6,11 @@ AF_DCMotor motorLB(2);
 AF_DCMotor motorRB(3);
 AF_DCMotor motorRF(4);
 
-int motorSpeed = 100;
+//int motorSpeed = 100;
 void setup() {
   // put your setup code here, to run once:
-  motorLF.setSpeed(motorSpeed);
-  motorLF.run(RELEASE);
+  //motorLF.setSpeed(motorSpeed);
+  //motorLF.run(RELEASE);
 }
 
 void motorStop(){
@@ -41,54 +41,19 @@ void forward(int t, int Speed){
   motorStop();
 }
 
-void right(int t, int Speed){
+void rightTurn(int t, int Speed){
 
   motorSpeed(Speed);
   motorLF.run(FORWARD);
   motorRF.run(BACKWARD);
-  motorLB.run(BACKWARD);
-  motorRB.run(FORWARD);
-
-  delay(t);
-  
-  motorStop();
-}
-
-void diagonalRightFront(int t, int Speed){
-
-  motorSpeed(Speed);
-  motorLF.run(FORWARD);
-  motorRB.run(FORWARD);
-
-  delay(t);
-  
-  motorStop();
-  
-}
-
-void left(int t, int Speed){
-
-  motorSpeed(Speed);
-  motorLF.run(BACKWARD);
-  motorRF.run(FORWARD);
   motorLB.run(FORWARD);
   motorRB.run(BACKWARD);
-  
+
   delay(t);
   
   motorStop();
 }
 
-void diagonalLeftFront(int t, int Speed){
-
-  motorSpeed(Speed);
-  motorRF.run(FORWARD);
-  motorLB.run(FORWARD);
-  
-  delay(t);
-  
-  motorStop();
-}
 
 void backward(int t, int Speed){
 
@@ -103,27 +68,23 @@ void backward(int t, int Speed){
   motorStop();
 }
 
-void diagonalLeftBack(int t, int Speed){
+void leftTurn(int t, int Speed){
 
   motorSpeed(Speed);
   motorLF.run(BACKWARD);
-  motorRB.run(BACKWARD);
-  
-  delay(t);
-  
-  motorStop();
-}
-
-void diagonalRightBack(int t, int Speed){
-
-  motorSpeed(Speed);
-  motorRF.run(BACKWARD);
+  motorRF.run(FORWARD);
   motorLB.run(BACKWARD);
+  motorRB.run(FORWARD);
   
   delay(t);
   
   motorStop();
 }
+
+
+
+
+
 
 void turnAround(int t, int Speed){
 
@@ -140,7 +101,11 @@ void turnAround(int t, int Speed){
 
 
 void loop() {
-  forward(1000,70);
+  right(380, 250);
+  delay(1000);
+  
+
+  /*
   backward(1000,70);
   right(1000,70);
   left(1000,70);
@@ -149,5 +114,6 @@ void loop() {
   diagonalLeftBack(1000,70);
   diagonalRightFront(1000,70);
   turnAround(1000,70);
-  turnaround(1000,70);
+  turnAround(1000,70);
+  */
 }
