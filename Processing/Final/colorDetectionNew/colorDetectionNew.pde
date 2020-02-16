@@ -2,11 +2,10 @@ import gohai.glvideo.*;
 import processing.io.*;
 GLCapture video;
 
-int driveComplete = 12;
-int orange_kitchen = 21;
-int green_refill = 26;
-int pink_order = 19;
-int piMode = 6;
+#define driveComplete 12
+#define orange_kitchen 21
+#define green_refill 26
+#define pink_BTN3 19
 
 
 color pink   =  color(134,11,63);
@@ -14,8 +13,6 @@ color orange =  color(146,41,21);//-7986170;
 color green  =  color(18,75,0);//-14987008;
 //color blue =  color(21,40,60);//-10136830;
 
-boolean cameraMode = false;
-boolean programStarted = false;
 
 color trackColor[] = {pink,orange,green}; 
 float threshold = 25;
@@ -24,10 +21,6 @@ float distThreshold = 50;
 int colorDetected[] = {0,0,0};
 
 ArrayList<Blob> blobs = new ArrayList<Blob>();
-
-Button thankYouButton;
-Button startButton;
-Button orderButton;
 
 void setup() {  
   size(320, 240, P2D);
@@ -42,37 +35,49 @@ void setup() {
   GPIO.pinMode(green_refill, GPIO.OUTPUT);
   GPIO.pinMode(pink_order, GPIO.OUTPUT);
   GPIO.pinMode(driveComplete, GPIO.INPUT);
-  
-  
-  
-  surface.setResizable(true);
-        
-  thankYouButton = new Button();
-  startButton = new Button();
-  orderButton = new Button();
-  thankYouButton.setPin(orange_kitchen);
-  startButton.setPin(green_refill);
-  orderButton.setPin(pink_order);
-  
-  
-  //GPIO pins
-  GPIO.pinMode(orange_kitchen, GPIO.OUTPUT);
-  GPIO.pinMode(green_refill, GPIO.OUTPUT);
-  GPIO.pinMode(pink_order, GPIO.OUTPUT);
+}
+
+void autoColor(int z){
+  float redGreenRatio = (green(trackColor[z]) + red(trackColor[z])) / 2;
+   
+  if (green(trackColor[z]) > red(trackColor[z]) && red(trackColor[z]) > blue(trackColor[z]))
+    colorDetected[0] = 1;
+  else
+    colorDetected[0] = 0;
+    //print("This color is green\n");
+  if (red(trackColor[z]) > blue(trackColor[z]) && blue(trackColor[z]) > green(trackColor[z]))
+    colorDetected[1] = 1;
+  else
+    colorDetected[1] = 0;
+    //print("This color is pink\n");
+  if (red(trackColor[z]) > green(trackColor[z]) && green(trackColor[z]) > blue(trackColor[z])) //&& redGreenRatio > 65)
+    colorDetected[2] = 1;
+  else
+    colorDetected[2] = 0;
+    //print("This color is orange\n");
+  //else if (red(trackColor[z]) > green(trackColor[z]) && green(trackColor[z]) > blue(trackColor[z]) && redGreenRatio < 65)
+  //  print("This color is blue\n");
+  if (colorDetected[0] == 1) 
+    GPIO.digitalWrite(green_refill, GPIO.HIGH);
+  else
+    GPIO.digitalWrite(green_refill, GPIO.LOW);
+    
+  if (colorDetected[1] == 1) 
+    GPIO.digitalWrite(pink_order, GPIO.HIGH);
+  else
+    GPIO.digitalWrite(pink_order, GPIO.LOW);
+    
+  if (colorDetected[2] == 1) 
+    GPIO.digitalWrite(orange_kitchen, GPIO.HIGH);
+  else
+    GPIO.digitalWrite(orange_kitchen, GPIO.LOW);
 }
 
 void draw() {
-  
+  background(0);
   //////////////////////
   // If the camera is sending new data, capture that data
-  if(GPIO.digitalRead(driveComplete)==GPIO.HIGH){
-    cameraMode = false;
-  } else{
-    cameraMode = true;
-  }
-  if (cameraMode && programStarted){ //Checking for colors
-    GPIO.digitalWrite(piMode, GPIO.HIGH);
-    background(0);
+  if (GPIO.digitalRead(driveComplete, GPIO.LOW){
     if (video.available()) {
       video.read();
     }
@@ -119,29 +124,107 @@ void draw() {
         }
       }
     }
-  }
-  else {
-    GPIO.digitalWrite(piMode, GPIO.LOW);
-    // if Arduino makes input pin high, turn on screen and don't use computer vision
-    background(255);
-    thankYouButton.setButtonColor(51,204,255);
-    startButton.setButtonColor(154,255,51);//programStarted
-    orderButton.setButtonColor(255,204,51);
-    thankYouButton.show(width/2, height/2, width/4, height/2);
-    startButton.show((width/2)+((width/4)+60), height/2, width/4, height/2);
-    if(startButton.buttonPressed()){
-      programStarted = true;
-    }
-    orderButton.show((width/2)-((width/4)+60), height/2, width/4, height/2);
-    if(thankYouButton.buttonPressed()){
-       GPIO.digitalWrite(piMode, GPIO.HIGH);
-       cameraMode = true;
-    }
-    if(orderButton.buttonPressed()){
+    else {
+      // if Arduino makes input pin high, turn on screen and don't use computer vision
+      class Button{
+        int position[] = {width/2,height/2};//default
+        int size[] = {100,75};
+        color buttonColor = color(255,0,0);
+        color pressedButtonColor = color(200,0,0);
+        String name = "Button";
+        int shape = 0; //0:Rect, 1: ellipse
+        int pin = 0;
+       
+       void setPin(int val){
+         this.pin = val; 
+       }
+       
+        void setButtonColor(int r, int g, int b){
+          this.buttonColor = color(r,g,b);
+          this.pressedButtonColor = color(0,0,0);
+          
+        }
+        
+        void buttonPressed(int value){
+          // check if click is inside height
+          float buttonTop = this.position[1] + ((this.size[1])/2);
+          float buttonBottom = this.position[1] - ((this.size[1])/2);
+          float buttonLeft = this.position[0] - ((this.size[0])/2);
+          float buttonRight = this.position[0] + ((this.size[0])/2);
+          if (mousePressed && (buttonBottom < mouseY) && (mouseY < buttonTop) && (buttonRight > mouseX) && (mouseX > buttonLeft)) {
+            //print("This is where we write to the GPIO pins\n");
+            GPIO.digitalWrite(this.pin, value);
+            fill(this.pressedButtonColor);
+          } else {
+            fill(this.buttonColor);
+            GPIO.digitalWrite(this.pin, GPIO.LOW);
+          }
+        } 
+        
+        void show(int x, int y, int w, int h){
+          this.position[0] = x;
+          this.position[1] = y;
+          this.size[0] = w;
+          this.size[1] = h;
+          
+          rectMode(CENTER);
+          stroke(255);
+          strokeWeight(2);
+          this.buttonPressed(GPIO.HIGH);
+          this.buttonPressed(GPIO.HIGH);
+          this.buttonPressed(GPIO.HIGH);
+          rect(this.position[0],this.position[1],this.size[0],this.size[1],15);
+          text(name, this.position[0],this.position[1]);
+        }
+        
+        
+      }
       
-    }
+      Button kitchenButton;
+      Button refillButton;
+      Button orderButton;
+      
+      void setup(){
+        size(1000,600);
+        surface.setResizable(true);
+        
+        kitchenButton = new Button();
+        refillButton = new Button();
+        orderButton = new Button();
+        kitchenButton.setPin(orange_kitchen);
+        refillButton.setPin(green_refill);
+        orderButton.setPin(pink_order);
+        
+        
+        //GPIO pins
+        GPIO.pinMode(orange_kitchen, GPIO.OUTPUT);
+        GPIO.pinMode(green_refill, GPIO.OUTPUT);
+        GPIO.pinMode(pink_order, GPIO.OUTPUT);
+      }
+      
+      void draw(){
+        background(255);
+        kitchenButton.setButtonColor(51,204,255);
+        refillButton.setButtonColor(154,255,51);
+        orderButton.setButtonColor(255,204,51);
+        kitchenButton.show(width/2, height/2, width/4, height/2);
+        refillButton.show((width/2)+((width/4)+60), height/2, width/4, height/2);
+        orderButton.show((width/2)-((width/4)+60), height/2, width/4, height/2);
+      }
   }
-}   
+
+  //for (Blob b : blobs) {
+  //  if (b.size() > 500) {
+  //    b.show();
+  //  }
+  //}
+
+  //textAlign(RIGHT);
+  //fill(0);
+  //text("distance threshold: " + distThreshold, width-10, 25);
+  //text("color threshold: " + threshold, width-10, 50);
+   /////////////////////
+}
 
 float distSq(float x1, float y1, float x2, float y2) {
   float d = (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1);
@@ -154,67 +237,26 @@ float distSq(float x1, float y1, float z1, float x2, float y2, float z2) {
   return d;
 }
 
-void autoColor(int z){
-  float redGreenRatio = (green(trackColor[z]) + red(trackColor[z])) / 2;
-   
-  if (green(trackColor[z]) > red(trackColor[z]) && red(trackColor[z]) > blue(trackColor[z]))
-    colorDetected[0] = 1;
-  else
-    colorDetected[0] = 0;
-    //print("This color is green\n");
-  if (red(trackColor[z]) > blue(trackColor[z]) && blue(trackColor[z]) > green(trackColor[z]))
-    colorDetected[1] = 1;
-  else
-    colorDetected[1] = 0;
-    //print("This color is pink\n");
-  if (red(trackColor[z]) > green(trackColor[z]) && green(trackColor[z]) > blue(trackColor[z])) //&& redGreenRatio > 65)
-    colorDetected[2] = 1;
-  else
-    colorDetected[2] = 0;
-    //print("This color is orange\n");
-  //else if (red(trackColor[z]) > green(trackColor[z]) && green(trackColor[z]) > blue(trackColor[z]) && redGreenRatio < 65)
-  //  print("This color is blue\n");
-  if (colorDetected[0] == 1) 
-    GPIO.digitalWrite(green_refill, GPIO.HIGH);
-  else
-    GPIO.digitalWrite(green_refill, GPIO.LOW);
-    
-  if (colorDetected[1] == 1) 
-    GPIO.digitalWrite(pink_order, GPIO.HIGH);
-  else
-    GPIO.digitalWrite(pink_order, GPIO.LOW);
-    
-  if (colorDetected[2] == 1) 
-    GPIO.digitalWrite(orange_kitchen, GPIO.HIGH);
-  else
-    GPIO.digitalWrite(orange_kitchen, GPIO.LOW);
-}
 
-/*
-drive, check for colors
-
-see colors = stop (Color combo detected by arduino)
-Arduino sends back stop
-
-wait for button press (Order, Thank you, Start)
---Order:
-  Go to kitchen
-    Remember color
-  Wait at kitchen for plate
-  Go back to color
---Thank you, return to normal mode
-
-
-
-
-
-//Button iD - arduino
-//Color combo iD - arduino
-//Ultrasonics - arduino
+void mousePressed() {
+  // Save color where the mouse is clicked in trackColor variable
+  //int loc = mouseX + mouseY*video.width;
+  //color trackColor123 = video.pixels[loc];
   
-//Color detect - Pi
-//switch interface - Pi
-//
-
-
-*/
+  //print(trackColor,"\n");
+  //print("Red Value: ", red(trackColor123),"\n");
+  //print("Green Value: ", green(trackColor123),"\n");
+  //print("Blue Value: ", blue(trackColor123),"\n");
+  
+  
+  //float redGreenRatio = (green(trackColor) + red(trackColor)) / 2;
+  
+  //if (green(trackColor) > red(trackColor) && red(trackColor) > blue(trackColor))
+  //  print("This color is green\n");
+  //else if (red(trackColor) > blue(trackColor) && blue(trackColor) > green(trackColor))
+  //  print("This color is pink\n");
+  //else if (red(trackColor) > green(trackColor) && green(trackColor) > blue(trackColor) && redGreenRatio > 65)
+  //  print("This color is orange\n");
+  //else if (red(trackColor) > green(trackColor) && green(trackColor) > blue(trackColor) && redGreenRatio < 65)
+  //  print("This color is yellow\n");
+}
