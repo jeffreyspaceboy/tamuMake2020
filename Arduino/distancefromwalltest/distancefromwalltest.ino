@@ -1,73 +1,91 @@
+#include <AFMotor.h>
+
+
 AF_DCMotor motorLF(1);  //motor setup
 AF_DCMotor motorLB(2);
 AF_DCMotor motorRB(3);
 AF_DCMotor motorRF(4);
 
-int trigPin = 9;
-int echoPin = 10;
+#define trigPin A5
+#define echoPin A4
+
+#define highSpeed 150
+#define lowSpeed 100
+
+#define wallDist
+
+void motorStop(){
+  motorLF.run(RELEASE);
+  motorRF.run(RELEASE);
+  motorLB.run(RELEASE);
+  motorRB.run(RELEASE);
+}
+
+void motorForward(){
+  motorLF.run(FORWARD);
+  motorRF.run(FORWARD);
+  motorLB.run(FORWARD);
+  motorRB.run(FORWARD);
+}
+
 
 void towardsWall()
 {
-  MotorLF.setSpeed(250);
-  MotorLB.setSpeed(250);
-  MotorRF.setSpeed(225);
-  MotorRB.setSpeed(225);
+  motorForward();
+  motorLF.setSpeed(highSpeed);
+  motorLB.setSpeed(highSpeed);
+  motorRF.setSpeed(lowSpeed);
+  motorRB.setSpeed(lowSpeed);
   
 }
 
 void awayWall()
 {
-  MotorRF.setSpeed(225);
-  MotorRB.setSpeed(225);
-  MotorLF.setSpeed(250);
-  MotorLB.setSpeed(250);
+  motorForward();
+  motorLF.setSpeed(lowSpeed);
+  motorLB.setSpeed(lowSpeed);
+  motorRF.setSpeed(highSpeed+50);
+  motorRB.setSpeed(highSpeed+50);
 }
 
 void straight()
 {
-  MotorRF.setSpeed(250);
-  MotorRB.setSpeed(250);
-  MotorLF.setSpeed(250);
-  MotorLB.setSpeed(250);
+  motorForward();
+  motorRF.setSpeed(highSpeed);
+  motorRB.setSpeed(highSpeed);
+  motorLF.setSpeed(highSpeed);
+  motorLB.setSpeed(highSpeed);
 }
 
 void setup() {
   Serial.begin(9600);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  MotorRF.setSpeed(250);
-  MotorRB.setSpeed(250);
-  MotorLF.setSpeed(250);
-  MotorLB.setSpeed(250);
-  
 }
 
 void loop() {
-  motorLF.run(FORWARD);
-  motorRF.run(FORWARD);
-  motorLB.run(FORWARD);
-  motorRB.run(FORWARD);
   digitalWrite(trigPin, LOW);
   delayMicroseconds(5);
   digitalWrite(trigPin,HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin,LOW);
   pinMode(echoPin, INPUT);
-  duration = pulseIn(echoPin, HIGH);
-  cm = (duration/2) / 29.1;
-  if (cm > 40)
-  {
+  double duration = pulseIn(echoPin, HIGH);
+  double cm = (duration/2) / 29.1;
+  Serial.println(cm);
+  if (cm > 20) {
     towardsWall();
-  }
-  else if (cm<20)
-  {
+    //Serial.println("Move towards wall");
+  } else if (cm < 20) {
+    //motorStop();
     awayWall();
-  }
-  else
-  {
+    //Serial.println("Move away from wall");
+  } else {
+    //motorStop();
     straight();
+    //Serial.println("Straight");
   }
-  }
-  
-  
+  delay(100);
+  motorStop();
+  delay(100);
 }
