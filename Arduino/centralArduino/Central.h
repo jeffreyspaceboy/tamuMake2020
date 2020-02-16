@@ -6,6 +6,12 @@
 #define triggerFrontPin 12 //to Ultrasonic
 
 class Central{
+    int driveDirection = 0; //0=fwd 1=reverse
+    int wallSetting = 0; //2=towardsWall, 1=awayWall, 0=straight 
+      
+    DataHandler cDH;
+
+      
 //    //Drive
 //    void sendDriveStop();
 //    void sendDirection();
@@ -22,6 +28,7 @@ class Central{
     double getDistanceRight();
     double getDistanceFront();
 };
+
 
 
 
