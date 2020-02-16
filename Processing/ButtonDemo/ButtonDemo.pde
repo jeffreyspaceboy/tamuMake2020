@@ -11,19 +11,22 @@ boolean circle3Over = false;
 //boolean circle4Over = false;
 void setup() {
   size(640, 360);
+  frameRate(2);
+  frame.setResizable(true);
   circleColor1 = color(51,204,255);
   circleColor2 = color(154,255,51);
   circleColor3 = color(255,204,51);
+  ellipseMode(CENTER);
+}
+
+void draw() {
+  circleSize = width/4;
   circleX1 = width/2-circleSize/2-110;
   circleY1 = height/2;
   circleX2 = width/2-circleSize/2-10;
   circleY2 = height/2;
   circleX3 = width/2+circleSize/2;
   circleY3 = height/2;
-  ellipseMode(CENTER);
-}
-
-void draw() {
   update(mouseX, mouseY);
   background(255);
   
