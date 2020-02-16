@@ -9,7 +9,7 @@ AF_DCMotor motorRF(4);
 #define trigPin A5
 #define echoPin A4
 
-#define highSpeed 130
+#define highSpeed 140
 #define lowSpeed 100
 
 #define wallDist 30
@@ -70,7 +70,6 @@ void loop() {
       inByte = !inByte;
     }
     Serial.print(Serial.read());
-    
   }
   if(inByte){
       digitalWrite(trigPin, LOW);
@@ -82,7 +81,7 @@ void loop() {
       double duration = pulseIn(echoPin, HIGH);
       double cm = (duration/2) / 29.1;
       Serial.println(cm);
-      if (cm > wallDist+5) {
+      if (cm > wallDist+5 && cm<85) {
         //motorStop();
         towardsWall();
         //Serial.println("Move towards wall");
@@ -90,7 +89,10 @@ void loop() {
         //motorStop();
         awayWall();
         //Serial.println("Move away from wall");
-      } else {
+      } else if(cm>85){
+        
+      }
+      else {
         //motorStop();
         straight();
         //Serial.println("Straight");
