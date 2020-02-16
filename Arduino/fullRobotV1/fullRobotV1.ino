@@ -1,5 +1,7 @@
 #include "Drive.h"
-#include "Sonar.h"
+
+Drive myDrive();
+
 void setup() {
   // put your setup code here, to run once:
 }
