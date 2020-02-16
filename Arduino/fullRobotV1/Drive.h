@@ -1,5 +1,8 @@
 #include <AFMotor.h>
 
+#include "DataHandler.h"
+
+
 
 AF_DCMotor motorLF(1);  //motor setup
 AF_DCMotor motorLB(2);
@@ -8,11 +11,13 @@ AF_DCMotor motorRF(4);
 
 class Drive{
   private:
+    bool isStopped = false;
     bool moveForward = true;
     int highSpeed = 130;
     int lowSpeed = 100;
+    DataHandler dDH;
   public:
-    Drive();
+    void mainDrive();
     void motorStop();
     void motorForward();
     void motorBackward();
@@ -22,28 +27,56 @@ class Drive{
     void dir();
 };
 
+void Drive::mainDrive(){
+  if(dDH.readStop()){
+    motorStop();
+    Serial.print("STOP");
+  }else{
+    if(dDH.readDirection() == 0){
+      moveForward = true;
+      Serial.print("MOTOR FWD -");
+    }else{
+      moveForward = false;
+      Serial.print("MOTOR BWD -");
+    }
+
+    if(dDH.readWallAdjustment() == 2){ //2=towardsWall, 1=awayWall, 0=straight
+      towardsWall(highSpeed-30, lowSpeed);
+      Serial.print(" TOWARDS");
+    } else if (dDH.readWallAdjustment() == 1) {
+      awayWall(lowSpeed, highSpeed+30);
+      Serial.print(" AWAY");
+    } else {
+      straight(highSpeed-40, highSpeed);
+      Serial.print(" STRAIGHT");
+    }
+  }
+  Serial.println(" ");
+}
+
+
 void Drive::towardsWall(int leftSpeed, int rightSpeed){
   dir();
-  motorLF.setSpeed(highSpeed-30);
-  motorLB.setSpeed(highSpeed-30);
-  motorRF.setSpeed(lowSpeed);
-  motorRB.setSpeed(lowSpeed);
+  motorLF.setSpeed(leftSpeed);
+  motorLB.setSpeed(leftSpeed);
+  motorRF.setSpeed(rightSpeed);
+  motorRB.setSpeed(rightSpeed);
 }
 
 void Drive::awayWall(int leftSpeed, int rightSpeed){
   dir();
-  motorLF.setSpeed(lowSpeed);
-  motorLB.setSpeed(lowSpeed);
-  motorRF.setSpeed(highSpeed+30);
-  motorRB.setSpeed(highSpeed+30);
+  motorLF.setSpeed(leftSpeed);
+  motorLB.setSpeed(leftSpeed);
+  motorRF.setSpeed(rightSpeed);
+  motorRB.setSpeed(rightSpeed);
 }
 
 void Drive::straight(int leftSpeed, int rightSpeed){
   dir();
-  motorRF.setSpeed(highSpeed);
-  motorRB.setSpeed(highSpeed);
-  motorLF.setSpeed(highSpeed-40);
-  motorLB.setSpeed(highSpeed-40);
+  motorLF.setSpeed(leftSpeed);
+  motorLB.setSpeed(leftSpeed);
+  motorRF.setSpeed(rightSpeed);
+  motorRB.setSpeed(rightSpeed);
 }
 
 void Drive::dir(){

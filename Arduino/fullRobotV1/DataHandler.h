@@ -13,14 +13,11 @@
 
 
 class DataHandler{
-  private:
-    
   public:
-    DataHandler();
     bool readStop();
     int readDirection();
     int readWallAdjustment();
-    void sendState();
+    void sendState(bool isStopped);
 };
 
 bool DataHandler::readStop(){
@@ -31,7 +28,7 @@ int DataHandler::readDirection(){ //Return: 0=fwd 1=reverse
   int val = analogRead(getDirectionPin); 
   if(val>500){
     return 0;
-  }else 
+  }else {
     return 1;
   }
 }
@@ -45,5 +42,13 @@ int DataHandler::readWallAdjustment(){
     return 1;
   }else{
     return 0;
+  }
+}
+
+void DataHandler::sendState(bool isStopped){
+  if(isStopped){
+    digitalWrite(sendStatePin, HIGH);
+  }else{
+    digitalWrite(sendStatePin, LOW);
   }
 }
