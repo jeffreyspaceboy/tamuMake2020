@@ -11,6 +11,8 @@ boolean circle3Over = false;
 //boolean circle4Over = false;
 void setup() {
   size(640, 360);
+  frameRate(2);
+  frame.setResizable(true);
   circleColor1 = color(51,204,255);
   circleColor2 = color(154,255,51);
   circleColor3 = color(255,204,51);
