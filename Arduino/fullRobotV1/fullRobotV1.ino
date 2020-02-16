@@ -6,10 +6,12 @@ Drive myDrive;
 void setup() {
   Serial.begin(9600);
   // put your setup code here, to run once:
-  pinMode(sendStatePin,OUTPUT);
-  pinMode(getStopPin,INPUT);
-  pinMode(getDirectionPin,INPUT);
-  pinMode(getWallAdjustmentPin,INPUT);
+
+  pinMode(echoRightPin,INPUT); //from Ultrasonic
+  pinMode(echoFrontPin,INPUT); //from Ultrasonic
+
+  pinMode(triggerRightPin,OUTPUT); //to Ultrasonic
+  pinMode(triggerFrontPin,OUTPUT); //to Ultrasonic
 }
 
 void loop() {

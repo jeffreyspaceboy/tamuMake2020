@@ -10,20 +10,19 @@
 #define sendDonePin 8 //to PI
 
 class DataHandler{
-    //Drive
-    bool getDriveIsStopped();
-    void sendDriveStop(bool shouldStop);
-    void sendDirection(int val);
-    void sendWallAdjustment(int val);
-
-    //PI
-    bool getPinkOrBtn1();
-    bool getGreenOrBtn2();
-    bool getOrangeOrBtn3();
-    void sendDone(bool amDone);
+    public:
+      //Drive
+      bool getDriveIsStopped();
+      void sendDriveStop(bool shouldStop);
+      void sendDirection(int val);
+      void sendWallAdjustment(int val);
+    
+      //PI
+      bool getPinkOrBtn1();
+      bool getGreenOrBtn2();
+      bool getOrangeOrBtn3();
+      void sendDone(bool amDone);
 };
-
-
 
 
 //Drive

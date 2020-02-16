@@ -1,37 +1,70 @@
 #include "DataHandler.h"
 
-#define echoRightPin 9 //from Ultrasonic
-#define triggerRightPin 10 //to Ultrasonic
+#define echoRightPin A4 //from Ultrasonic
+#define triggerRightPin A5 //to Ultrasonic
 #define echoFrontPin 11 //from Ultrasonic
 #define triggerFrontPin 12 //to Ultrasonic
 
+
+
 class Central{
-    int driveDirection = 0; //0=fwd 1=reverse
-    int wallSetting = 0; //2=towardsWall, 1=awayWall, 0=straight 
+    int mode = 0; //driveFWDWall, driveBWDWall, PassedWallFront, PassedWallBack, AtTable, AtKitchen
+    
+    bool dirFWD = true; //0=fwd 1=reverse
+    //int wallSetting = 0; //2=towardsWall, 1=awayWall, 0=straight 
       
     DataHandler cDH;
-
-      
-//    //Drive
-//    void sendDriveStop();
-//    void sendDirection();
-//    void sendWallAdjustment();
-//    bool getDriveIsStopped();  
-    
-//    //PI
-//    bool getPinkOrBtn1();
-//    bool getGreenOrBtn2();
-//    bool getOrangeOrBtn3();
-//    void sendDonePin();
+    void mainCentral();
 
     //Ultrasonic
     double getDistanceRight();
     double getDistanceFront();
+
+    void wallDrive(int wallDist);
 };
 
+//    //Drive
+//    bool getDriveIsStopped();
+//    void sendDriveStop(bool shouldStop);
+//    void sendDirection(int val);
+//    void sendWallAdjustment(int val);
+//
+//    //PI
+//    bool getPinkOrBtn1();
+//    bool getGreenOrBtn2();
+//    bool getOrangeOrBtn3();
+//    void sendDone(bool amDone);
 
 
+void Central::mainCentral(){
+  switch (var) {
+    case 1:
+      break;
+    case 2:
+      break:
+    case 3:
+  }
 
+  //If two colors detected, stop drive, 
+        //once plate removed, send signal back to pi
+
+  //
+}
+
+
+void Central::wallDrive(int wallDist){
+  double cm = this->getDistanceRight();
+  if (cm > wallDist+5 && cm < 100) {
+    cDH.sendWallAdjustment(2);
+  } else if (cm < wallDist-5) {
+    cDH.sendWallAdjustment(1);
+  } else if (cm > 100){
+    dirFWD = !dirFWD;
+    cDH.sendDirection(dirFWD);
+  }else {
+    cDH.sendWallAdjustment(0);
+  }
+}
 
 
 double Central::getDistanceRight(){
