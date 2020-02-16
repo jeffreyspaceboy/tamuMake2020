@@ -7,16 +7,54 @@
 #define echoFrontPin 11 //from Ultrasonic
 #define triggerFrontPin 12 //to Ultrasonic
 
-#define getPinkOrBtn1Pin 4 //from PI
-#define getGreenOrBtn2Pin 5 //from PI
-#define getOrangeOrBtn3Pin 6 //from PI
-#define getPiState 7 //from PI
-#define sendRobotState 8 //to PI
+#define getPinkOrBtn1Pin 52 //from PI
+#define getGreenOrBtn2Pin 50 //from PI
+#define getOrangeOrBtn3Pin 48 //from PI
+#define getPiState 51 //from PI
+#define sendRobotState 53 //to PI
 
 AF_DCMotor motorLF(1);  //motor setup
 AF_DCMotor motorLB(2);
 AF_DCMotor motorRB(3);
 AF_DCMotor motorRF(4);
+
+int lookingForColorCode[] = {1,1,0};
+
+
+bool useColors(){
+  if(digitalRead(getPiState) == 1){
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool findColorCode(){
+  int pink = digitalRead(getPinkOrBtn1Pin);
+  int green = digitalRead(getGreenOrBtn2Pin);
+  int orange = digitalRead(getOrangeOrBtn3Pin);
+  int currentColorCode[] = {pink,green,orange};
+  if(currentColorCode == lookingForColorCode){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+int buttonModeSelect(){
+  int order = digitalRead(getPinkOrBtn1Pin);
+  int start = digitalRead(getGreenOrBtn2Pin);
+  int thankYou = digitalRead(getOrangeOrBtn3Pin);
+  if(start == true){
+    //digitalWrite(sendRobotState,LOW);
+  }else if(order == true){
+    //digitalWrite(sendRobotState,LOW);
+  }else if(thankYou == true){
+    //digitalWrite(sendRobotState,LOW);
+  }
+}
+
+
 
 class Drive{
   private:
@@ -37,10 +75,15 @@ class Drive{
 };
 
 void Drive::mainDrive(){
-  if(digitalRead(getPiState)==0){
+  if(!useColors()){
     motorStop();
     Serial.print("STOP");
   }else{
+    if(findColorCode()){
+      digitalWrite(sendRobotState,HIGH);
+    }else{
+      digitalWrite(sendRobotState,LOW);
+    }
     double cm = getDistanceRight();
     if(cm > wallDist+5 && cm < 100){
       towardsWall(highSpeed-30, lowSpeed);
@@ -128,3 +171,10 @@ void Drive::motorBackward(){
   motorLB.run(BACKWARD);
   motorRB.run(BACKWARD);
 }
+
+
+
+//if pi mode is high 
+//use colors
+//if low 
+//use buttons
