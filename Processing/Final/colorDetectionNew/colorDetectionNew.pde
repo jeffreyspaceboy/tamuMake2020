@@ -2,6 +2,12 @@ import gohai.glvideo.*;
 import processing.io.*;
 GLCapture video;
 
+#define driveComplete 12
+#define orange_kitchen 21
+#define green_refill 26
+#define pink_BTN3 19
+
+
 color pink   =  color(134,11,63);
 color orange =  color(146,41,21);//-7986170;
 color green  =  color(18,75,0);//-14987008;
@@ -25,10 +31,10 @@ void setup() {
   //trackColor = color(255, 0, 0);
   
   //GPIO pins
-  GPIO.pinMode(21, GPIO.OUTPUT);
-  GPIO.pinMode(26, GPIO.OUTPUT);
-  GPIO.pinMode(19, GPIO.OUTPUT);
-  GPIO.pinMode(12, GPIO.INPUT);
+  GPIO.pinMode(orange_kitchen, GPIO.OUTPUT);
+  GPIO.pinMode(green_refill, GPIO.OUTPUT);
+  GPIO.pinMode(pink_order, GPIO.OUTPUT);
+  GPIO.pinMode(driveComplete, GPIO.INPUT);
 }
 
 void autoColor(int z){
@@ -52,26 +58,26 @@ void autoColor(int z){
   //else if (red(trackColor[z]) > green(trackColor[z]) && green(trackColor[z]) > blue(trackColor[z]) && redGreenRatio < 65)
   //  print("This color is blue\n");
   if (colorDetected[0] == 1) 
-    GPIO.digitalWrite(26, GPIO.HIGH);
+    GPIO.digitalWrite(green_refill, GPIO.HIGH);
   else
-    GPIO.digitalWrite(26, GPIO.LOW);
+    GPIO.digitalWrite(green_refill, GPIO.LOW);
     
   if (colorDetected[1] == 1) 
-    GPIO.digitalWrite(19, GPIO.HIGH);
+    GPIO.digitalWrite(pink_order, GPIO.HIGH);
   else
-    GPIO.digitalWrite(19, GPIO.LOW);
+    GPIO.digitalWrite(pink_order, GPIO.LOW);
     
   if (colorDetected[2] == 1) 
-    GPIO.digitalWrite(21, GPIO.HIGH);
+    GPIO.digitalWrite(orange_kitchen, GPIO.HIGH);
   else
-    GPIO.digitalWrite(21, GPIO.LOW);
+    GPIO.digitalWrite(orange_kitchen, GPIO.LOW);
 }
 
 void draw() {
   background(0);
   //////////////////////
   // If the camera is sending new data, capture that data
-  if (GPIO.digitalRead(12, GPIO.LOW){
+  if (GPIO.digitalRead(driveComplete, GPIO.LOW){
     if (video.available()) {
       video.read();
     }
@@ -120,7 +126,91 @@ void draw() {
     }
     else {
       // if Arduino makes input pin high, turn on screen and don't use computer vision
+      class Button{
+        int position[] = {width/2,height/2};//default
+        int size[] = {100,75};
+        color buttonColor = color(255,0,0);
+        color pressedButtonColor = color(200,0,0);
+        String name = "Button";
+        int shape = 0; //0:Rect, 1: ellipse
+        int pin = 0;
+       
+       void setPin(int val){
+         this.pin = val; 
+       }
+       
+        void setButtonColor(int r, int g, int b){
+          this.buttonColor = color(r,g,b);
+          this.pressedButtonColor = color(0,0,0);
+          
+        }
+        
+        void buttonPressed(int value){
+          // check if click is inside height
+          float buttonTop = this.position[1] + ((this.size[1])/2);
+          float buttonBottom = this.position[1] - ((this.size[1])/2);
+          float buttonLeft = this.position[0] - ((this.size[0])/2);
+          float buttonRight = this.position[0] + ((this.size[0])/2);
+          if (mousePressed && (buttonBottom < mouseY) && (mouseY < buttonTop) && (buttonRight > mouseX) && (mouseX > buttonLeft)) {
+            //print("This is where we write to the GPIO pins\n");
+            GPIO.digitalWrite(this.pin, value);
+            fill(this.pressedButtonColor);
+          } else {
+            fill(this.buttonColor);
+            GPIO.digitalWrite(this.pin, GPIO.LOW);
+          }
+        } 
+        
+        void show(int x, int y, int w, int h){
+          this.position[0] = x;
+          this.position[1] = y;
+          this.size[0] = w;
+          this.size[1] = h;
+          
+          rectMode(CENTER);
+          stroke(255);
+          strokeWeight(2);
+          this.buttonPressed(GPIO.HIGH);
+          this.buttonPressed(GPIO.HIGH);
+          this.buttonPressed(GPIO.HIGH);
+          rect(this.position[0],this.position[1],this.size[0],this.size[1],15);
+          text(name, this.position[0],this.position[1]);
+        }
+        
+        
+      }
       
+      Button kitchenButton;
+      Button refillButton;
+      Button orderButton;
+      
+      void setup(){
+        size(1000,600);
+        surface.setResizable(true);
+        
+        kitchenButton = new Button();
+        refillButton = new Button();
+        orderButton = new Button();
+        kitchenButton.setPin(orange_kitchen);
+        refillButton.setPin(green_refill);
+        orderButton.setPin(pink_order);
+        
+        
+        //GPIO pins
+        GPIO.pinMode(orange_kitchen, GPIO.OUTPUT);
+        GPIO.pinMode(green_refill, GPIO.OUTPUT);
+        GPIO.pinMode(pink_order, GPIO.OUTPUT);
+      }
+      
+      void draw(){
+        background(255);
+        kitchenButton.setButtonColor(51,204,255);
+        refillButton.setButtonColor(154,255,51);
+        orderButton.setButtonColor(255,204,51);
+        kitchenButton.show(width/2, height/2, width/4, height/2);
+        refillButton.show((width/2)+((width/4)+60), height/2, width/4, height/2);
+        orderButton.show((width/2)-((width/4)+60), height/2, width/4, height/2);
+      }
   }
 
   //for (Blob b : blobs) {
